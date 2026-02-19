@@ -1,42 +1,63 @@
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 
-// user role
+// User Roles
 export const USER_ROLE = {
-  user: 'user', // Seller
-  micro_collector: 'micro-collector',
-  hub: 'hub', // Large Collector
+  user: 'user', 
   admin: 'admin',
 } as const;
 
 export type TUserRole = keyof typeof USER_ROLE;
 
-export type TLoginUser = {
-  email: string;
-  password: string;
-};
+// User Plans
+export enum UserPlan {
+  FREE = 'Free',
+  BASIC = 'Basic',
+  SILVER = 'Silver',
+  PREMIUM = 'Premium', 
+}
 
-export type TRegisterUser = {
-  name: string;
-  email: string;
-  password: string;
-  role: TUserRole;
-};
-
+// 1. Base User Interface
 export interface TUser {
-  id: string;
+  _id?: Types.ObjectId;
   name: string;
   email: string;
   password: string;
   role: TUserRole;
   isBlocked: boolean;
-  connection: number; 
+  
+  // --- Reward Wallet ---
+  wallet: {
+    interestCount: number;      // Default: 5
+    connectionCount: number;    // Default: 0
+    canChat: boolean;           // Default: false
+  };
+
+  // --- Referral & Plan Tracking ---
+  referralCode: string;         
+  referredBy: string | null;    
+  
+  referralStats: {
+    approvedReferrals: number;  
+  };
+
+  plan: UserPlan;               
+  premiumUntil: Date | null;    
+  isUnlimited: boolean;         
 }
 
-// Mongoose Model Interface
+// 2. Registration Payload 
+export type TRegisterUser = Pick<TUser, 'name' | 'email' | 'password'> & {
+  referredBy?: string; // optional referral code during registration
+};
+
+// 3. Login Payload
+export type TLoginUser = Pick<TUser, 'email' | 'password'>;
+
+// 4. Mongoose Model Interface
 export interface IUserModel extends Model<TUser> {
   isUserExistsByEmail(email: string): Promise<TUser | null>;
   isPasswordMatched(
-    plainTextPassword: string,
-    hashedPassword: string,
+    plainTextPassword: string, 
+    hashedPassword: string
   ): Promise<boolean>;
 }

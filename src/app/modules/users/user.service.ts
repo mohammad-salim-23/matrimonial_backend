@@ -1,49 +1,56 @@
 import { StatusCodes } from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
-import { TLoginUser, TRegisterUser } from "./user.interface.js";
+
 import config from "../../config/index.js";
 import { User } from "./user.model.js";
 import AppError from "../../errors/AppError.js";
 import bcrypt from "bcrypt";
 import { createToken } from "./user.util.js";
+import { TRegisterUser } from "./user.interface.js";
 
 
 const registerUser = async (payload: TRegisterUser) => {
-  // password hash
-  const hashedPassword = await bcrypt.hash(payload.password, Number(config.bcrypt_salt_round));
-  
+  // ১. চেক করুন ইউজার আগে থেকে আছে কি না
+  const isUserExist = await User.findOne({ email: payload.email });
+  if (isUserExist) {
+    throw new AppError(StatusCodes.BAD_REQUEST, 'User already exists with this email!');
+  }
+
+  // ২. ইউনিক রেফারেল কোড জেনারেট করা (নামের প্রথম ৩ অক্ষর + র‍্যান্ডম ৪ ডিজিট)
+  const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+  const referralCode = `${payload.name.substring(0, 3).toUpperCase()}${randomSuffix}`;
+
+  // ৩. ইউজার ক্রিয়েট (পাসওয়ার্ড অটো হ্যাশ হবে মডেলের প্রি-সেভ হুক থেকে)
   const result = await User.create({
     ...payload,
-    password: hashedPassword,
+    referralCode,
   });
+
   return result;
 };
 
-const loginUser = async (payload: TLoginUser) => {
-  // check user is exist 
-  const user = await User.findOne({ email: payload.email }).select('+password');
+const loginUser = async (payload: any) => {
+  // স্ট্যাটিক মেথড ব্যবহার করে ইউজার চেক
+  const user = await User.isUserExistsByEmail(payload.email);
   
   if (!user) {
-    // User not found with this email
-    throw new AppError(StatusCodes.NOT_FOUND, 'User not found with this email address');
+    throw new AppError(StatusCodes.NOT_FOUND, 'User not found');
   }
 
   if (user.isBlocked) {
-    //  Your account is blocked
-    throw new AppError(StatusCodes.FORBIDDEN, 'Your account has been blocked. Please contact support.');
+    throw new AppError(StatusCodes.FORBIDDEN, 'Your account has been blocked.');
   }
 
-  // password check
+  // password match check
   const isMatched = await User.isPasswordMatched(payload.password, user.password);
   if (!isMatched) {
-    // Password does not match
-    throw new AppError(StatusCodes.FORBIDDEN, 'Invalid credentials. Password does not match.');
+    throw new AppError(StatusCodes.FORBIDDEN, 'Invalid credentials.');
   }
 
   const jwtPayload = {
     userId: user._id,
     name: user.name,
-    userEmail: user.email,
+    email: user.email,
     role: user.role,
   };
 
