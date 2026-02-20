@@ -27,6 +27,8 @@ export interface IBiodata {
     contactNumber: string;
     guardianNumber: string;
     guardianRelation: "Father" | "Mother" | "Brother" | "Sister" | "Uncle" | "Other";
+     socialMedia: { facebook?: string; instagram?: string; linkedin?: string };
+  documents: { nidCardUrl?: string; studentIdCardUrl?: string; jobIdCardUrl?: string };
   };
 
   gender: Gender;
@@ -40,7 +42,7 @@ export interface IBiodata {
     weight: number;
     skinTone: SkinTone;
   };
-
+ 
   education: {
     ssc: { board: string; year: string; result: string };
     hsc: { board: string; year: string; result: string };
@@ -64,7 +66,7 @@ export interface IBiodata {
     father: { isAlive: boolean; occupation: string };
     mother: { isAlive: boolean; occupation: string };
     siblingsCount: number;
-    siblingsDetails: ISibling[]; // ডায়নামিক লিস্ট
+    siblingsDetails: ISibling[]; // dynamic list of siblings
     economicalStatus: EconomicalStatus;
     familySummary: string;
   };
@@ -83,8 +85,7 @@ export interface IBiodata {
     religiousLifestyleDetails: string;
   };
 
-  socialMedia: { facebook?: string; instagram?: string; linkedin?: string };
-  documents: { nidCardUrl?: string; studentIdCardUrl?: string; jobIdCardUrl?: string };
+ 
 
   partnerPreference: {
     religiousExpectation: "Very Religious" | "Moderate" | "Liberal" | "Any";

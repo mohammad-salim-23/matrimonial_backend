@@ -20,6 +20,18 @@ const biodataSchema = new Schema<IBiodata>(
       contactNumber: { type: String, required: true },
       guardianNumber: { type: String, required: true },
       guardianRelation: { type: String, required: true },
+      // Added socialMedia field
+      socialMedia: {
+        facebook: { type: String },
+        instagram: { type: String },
+        linkedin: { type: String }
+      },
+      // Added documents field
+      documents: {
+        nidCardUrl: { type: String },
+        studentIdCardUrl: { type: String },
+        jobIdCardUrl: { type: String }
+      }
     },
 
     gender: { type: String, enum: Object.values(Gender), required: true },
