@@ -6,7 +6,7 @@ export const redisClient = new Redis(envVars.REDIS_URL || 'redis://localhost:637
   lazyConnect: false,
   maxRetriesPerRequest: 3,
 });
-
+// 
 redisClient.on('connect', () => console.log('✅ Redis connected'));
 redisClient.on('ready', () => console.log('🔹 Redis ready'));
 redisClient.on('error', (err) => console.error('❌ Redis Error:', err.message));

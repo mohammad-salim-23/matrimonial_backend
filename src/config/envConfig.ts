@@ -35,7 +35,7 @@ const loadEnvVariables = (): EnvConfig => {
         SUPER_ADMIN_PASSWORD: process.env.SUPER_ADMIN_PASSWORD as string,
         BCRYPT_SALT_ROUND: process.env.BCRYPT_SALT_ROUND as string,
         FRONTEND_URL: process.env.FRONEND_URL as string,
-        REDIS_URL: process.env.REDIS_URL as string
+         REDIS_URL: process.env.REDIS_URL as string
 
     }
 }
